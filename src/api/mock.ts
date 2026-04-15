@@ -66,6 +66,21 @@ export function mockPrediction(): TemperaturePrediction {
 export function mockChatReply(message: string): ChatResponse {
   const q = message.trim().toLowerCase()
   if (!q) return { reply: 'Ask me about temperature trends or the dashboard.' }
+  if (q.includes('comfortable') || q.includes('comfort')) {
+    return {
+      reply: 'Yes, the room feels comfortable in demo mode. The sample reading is within a normal indoor range.',
+    }
+  }
+  if (q.includes('room condition') || q.includes('how is the room')) {
+    return {
+      reply: 'The room condition looks normal in demo mode. Temperature and humidity are in a comfortable range.',
+    }
+  }
+  if (q.includes('okay to stay') || q.includes('stay in this room') || q.includes('safe to stay')) {
+    return {
+      reply: 'Yes, it is okay to stay in this room based on the demo reading.',
+    }
+  }
   if (q.includes('temp') || q.includes('hot') || q.includes('cold')) {
     return {
       reply:

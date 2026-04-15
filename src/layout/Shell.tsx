@@ -1,9 +1,38 @@
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 
 export function Shell() {
+  const [headerHidden, setHeaderHidden] = useState(false)
+
+  useEffect(() => {
+    let lastY = window.scrollY
+
+    const onScroll = () => {
+      const currentY = window.scrollY
+      const scrollingDown = currentY > lastY
+      const passedTop = currentY > 24
+      const delta = Math.abs(currentY - lastY)
+
+      if (delta < 6) return
+
+      if (!passedTop) {
+        setHeaderHidden(false)
+      } else if (scrollingDown) {
+        setHeaderHidden(true)
+      } else {
+        setHeaderHidden(false)
+      }
+
+      lastY = currentY
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   return (
     <div className="shell">
-      <header className="shell__header">
+      <header className={`shell__header${headerHidden ? ' shell__header--hidden' : ''}`}>
         <div className="shell__bar">
           <NavLink to="/" className="shell__brand" end>
             <span className="shell__mark" aria-hidden />
@@ -18,14 +47,6 @@ export function Shell() {
               }
             >
               Home
-            </NavLink>
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `shell__link${isActive ? ' shell__link--active' : ''}`
-              }
-            >
-              Dashboard
             </NavLink>
           </nav>
         </div>
