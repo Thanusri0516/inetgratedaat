@@ -1,13 +1,13 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { sendChatMessage } from '../api/chat'
 import { IconChat } from './DashboardIcons'
 
 type Msg = { role: 'user' | 'assistant'; text: string }
 
 const QUICK_ACTIONS: { label: string; message: string }[] = [
-  { label: "What's the forecast?", message: "What's the temperature forecast?" },
-  { label: "Today's trend", message: 'Summarize the temperature trend for the current chart window.' },
-  { label: 'Is it unusual?', message: 'Does the current reading look hot, cold, or normal?' },
+  { label: 'Temperature now', message: 'What is the temperature?' },
+  { label: 'Is it hot?', message: 'Is it hot?' },
+  { label: 'Forecast', message: "What's the temperature forecast?" },
 ]
 
 export function Chatbot() {
@@ -15,7 +15,7 @@ export function Chatbot() {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: 'assistant',
-      text: 'Hi — ask about the dashboard or temperature data. Connect your backend to receive real replies.',
+      text: 'Hi, ask about the current temperature, humidity, high, low, or forecast.',
     },
   ])
   const [input, setInput] = useState('')
@@ -27,6 +27,11 @@ export function Chatbot() {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [])
 
+  useEffect(() => {
+    if (!open) return
+    scrollToEnd()
+  }, [messages, open, scrollToEnd])
+
   const sendText = useCallback(
     async (text: string) => {
       const trimmed = text.trim()
@@ -37,7 +42,6 @@ export function Chatbot() {
       try {
         const { reply } = await sendChatMessage(trimmed)
         setMessages((m) => [...m, { role: 'assistant', text: reply }])
-        queueMicrotask(scrollToEnd)
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Chat request failed')
       } finally {
@@ -77,7 +81,7 @@ export function Chatbot() {
 
       <aside
         className={`dash-assistant-panel${open ? ' dash-assistant-panel--open' : ''}`}
-        aria-hidden={!open}
+        aria-hidden={open ? 'false' : 'true'}
       >
         <div className="dash-assistant-panel__top">
           <div className="dash-assistant-panel__title">
@@ -86,7 +90,7 @@ export function Chatbot() {
             </span>
             <div>
               <h2 className="dash-assistant-panel__heading">Assistant</h2>
-              <p className="dash-assistant-panel__sub">Quick questions below — or type your own.</p>
+              <p className="dash-assistant-panel__sub">Quick questions below or type your own.</p>
             </div>
           </div>
           <button
@@ -95,7 +99,7 @@ export function Chatbot() {
             onClick={() => setOpen(false)}
             aria-label="Close"
           >
-            ×
+            x
           </button>
         </div>
 
@@ -140,7 +144,7 @@ export function Chatbot() {
             className="dash-chat-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask anything…"
+            placeholder="Ask a temperature question..."
             autoComplete="off"
             disabled={busy}
           />

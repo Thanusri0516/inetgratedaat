@@ -3,7 +3,7 @@ function baseUrl(): string {
 }
 
 export function useMockApi(): boolean {
-  return baseUrl() === ''
+  return import.meta.env.VITE_USE_MOCK_API === 'true'
 }
 
 export function apiUrl(path: string): string {

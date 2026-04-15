@@ -3,8 +3,8 @@
  * `${VITE_API_BASE_URL}${path}`. Change paths here when your API is ready.
  */
 export const API_ENDPOINTS = {
-  liveTemperature: '/temperature/live',
-  temperatureHistory: '/temperature/history',
-  predictedTemperature: '/temperature/predicted',
-  chat: '/chat',
+  liveTemperature: '/api/temperature/live',
+  temperatureHistory: '/api/temperature/history',
+  predictedTemperature: '/api/temperature/predicted',
+  chat: '/api/chatbot',
 } as const
