@@ -4,8 +4,8 @@ export const predictionRoutes = [
   {
     method: 'GET',
     path: '/api/temperature/predicted',
-    handle() {
-      return { status: 200, body: getTemperaturePrediction() }
+    async handle() {
+      return { status: 200, body: await getTemperaturePrediction() }
     },
   },
 ]

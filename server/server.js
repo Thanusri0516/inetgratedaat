@@ -1,10 +1,12 @@
 import http from 'node:http'
 import { URL } from 'node:url'
+import { closeConnection } from './config/mongodb.js'
+import { config, validateConfig } from './config/env.js'
 import { chatbotRoutes } from './routes/chatbot.js'
 import { predictionRoutes } from './routes/prediction.js'
 import { temperatureRoutes } from './routes/temperature.js'
+import { startArduinoPipeline, stopArduinoPipeline } from './services/dataCollectionService.js'
 
-const PORT = Number(process.env.PORT ?? 3001)
 const routes = [...temperatureRoutes, ...predictionRoutes, ...chatbotRoutes]
 
 function sendJson(res, status, payload) {
@@ -53,20 +55,48 @@ const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host ?? 'localhost'}`)
   const route = routes.find((entry) => entry.method === req.method && entry.path === url.pathname)
 
-  if (route) {
-    try {
-      const body = req.method === 'POST' ? await readJsonBody(req) : {}
-      const response = await route.handle({ req, res, url, body })
-      sendJson(res, response.status ?? 200, response.body)
-    } catch {
-      sendJson(res, 400, { error: 'Invalid request body' })
-    }
+  if (!route) {
+    sendJson(res, 404, { error: 'Route not found' })
     return
   }
 
-  sendJson(res, 404, { error: 'Route not found' })
+  try {
+    const body = req.method === 'POST' ? await readJsonBody(req) : {}
+    const response = await route.handle({ req, res, url, body })
+    sendJson(res, response.status ?? 200, response.body)
+  } catch (error) {
+    sendJson(res, 400, {
+      error: error instanceof Error ? error.message : 'Invalid request body',
+    })
+  }
 })
 
-server.listen(PORT, () => {
-  console.log(`Backend listening on http://localhost:${PORT}`)
+async function shutdown() {
+  console.log('\nShutting down gracefully...')
+  await stopArduinoPipeline()
+  await closeConnection()
+  process.exit(0)
+}
+
+validateConfig()
+
+server.listen(config.server.port, async () => {
+  console.log(`Backend listening on http://localhost:${config.server.port}`)
+
+  if (!config.arduino.enabled) {
+    console.log('Arduino pipeline disabled by configuration')
+    return
+  }
+
+  try {
+    await startArduinoPipeline(config.arduino.port)
+    console.log('Real-time data collection from Arduino enabled')
+  } catch (error) {
+    console.warn(
+      `Arduino pipeline did not start: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
 })
+
+process.on('SIGTERM', shutdown)
+process.on('SIGINT', shutdown)

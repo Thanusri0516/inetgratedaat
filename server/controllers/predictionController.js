@@ -1,5 +1,5 @@
 import { Temperature } from '../models/Temperature.js'
 
-export function getTemperaturePrediction() {
-  return Temperature.getPrediction()
+export async function getTemperaturePrediction() {
+  return await Temperature.getPrediction()
 }
