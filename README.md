@@ -54,20 +54,7 @@ Create a root `.env` file:
 ```env
 MONGODB_URI=mongodb+srv://YOUR_USER:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/aat_dashboard?retryWrites=true&w=majority
 DATABASE_NAME=aat_dashboard
-PORT=3000
-NODE_ENV=development
-ENABLE_ARDUINO=true
-ARDUINO_PORT=COM8
-ARDUINO_BAUD_RATE=115200
 ```
-
-Create `.env.local` for the frontend:
-
-```env
-VITE_API_BASE_URL=http://localhost:3000
-VITE_USE_MOCK_API=false
-```
-
 ## MongoDB Atlas Setup
 
 1. Create a cluster in MongoDB Atlas.
@@ -76,28 +63,6 @@ VITE_USE_MOCK_API=false
 4. In `Network Access`, add your current IP address.
 
 If Atlas is not allowlisting your IP, the backend may fail with TLS or connection errors while trying to save Arduino data.
-
-## Arduino Output Format
-
-The backend accepts either JSON output or the plain text format below.
-
-Preferred JSON format:
-
-```cpp
-Serial.print("{\"temperature\":");
-Serial.print(temp);
-Serial.print(",\"humidity\":");
-Serial.print(humid);
-Serial.println("}");
-```
-
-Also supported:
-
-```text
-Temperature: 32.9 °C | Humidity: 60.3 %
-```
-
-Use baud rate `115200`.
 
 ## Install
 
@@ -121,24 +86,6 @@ Terminal 2:
 npm run dev
 ```
 
-Open:
-
-- Frontend: `http://localhost:5173`
-- Dashboard: `http://localhost:5173/dashboard`
-- Backend API: `http://localhost:3000`
-
-## Important Serial Port Note
-
-Only one app can use the Arduino serial port at a time.
-
-Before starting the backend:
-
-- close the Arduino IDE `Serial Monitor`
-- keep the board connected
-- make sure `ARDUINO_PORT` matches the correct COM port
-
-If the backend prints `Access denied` for `COM8`, it usually means Arduino IDE Serial Monitor is still open.
-
 ## API Endpoints
 
 - `GET /api/temperature/live`
@@ -156,11 +103,6 @@ The chatbot uses live backend data from MongoDB and can answer:
 - `Is it hot?`
 - `What is the humidity?`
 - `What is the forecast?`
-- `What is the high?`
-- `What is the low?`
-- `How is the room?`
-
-If no live reading is available yet, it will tell you that sensor data is not ready.
 
 ## Build
 
@@ -168,50 +110,3 @@ If no live reading is available yet, it will tell you that sensor data is not re
 npm run build
 npm run preview
 ```
-
-## Troubleshooting
-
-### MongoDB TLS / connection errors
-
-Example:
-
-```text
-MongoDB connection failed: tlsv1 alert internal error
-```
-
-Try these:
-
-- add your current IP in MongoDB Atlas `Network Access`
-- verify your MongoDB username and password
-- double-check `MONGODB_URI` in `.env`
-- restart the backend after changing Atlas settings
-- if SRV connection keeps failing, try the non-SRV `mongodb://...` connection string from Atlas
-
-### Serial port access denied
-
-Example:
-
-```text
-Arduino pipeline did not start: Opening COM8: Access denied
-```
-
-Fix:
-
-- close Arduino IDE Serial Monitor
-- check the correct COM port in Device Manager
-- restart the backend
-
-### Frontend loads but no live data appears
-
-Check:
-
-- backend is running on `http://localhost:3000`
-- `.env.local` has `VITE_API_BASE_URL=http://localhost:3000`
-- MongoDB is connected
-- Arduino is sending data
-
-## Notes
-
-- The backend starts even if Arduino is unavailable, but live ingestion will not work until the serial port is free.
-- The chatbot, live card, and forecast depend on backend data being stored successfully.
-- `SETUP.md` contains additional setup guidance if you want a more detailed walkthrough.
