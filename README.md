@@ -34,9 +34,6 @@ React dashboard + chatbot
 src/                  Frontend app
 server/               Backend API, MongoDB, serial ingestion
 ml-model/             Python forecasting scripts
-public/               Static assets
-seed-data.js          Optional mock data seeding script
-SETUP.md              Extended setup notes
 ```
 
 ## Requirements
