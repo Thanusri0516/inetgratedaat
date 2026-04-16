@@ -18,13 +18,13 @@ The project reads live sensor data from the serial port, stores it in MongoDB At
 
 ```text
 ESP32 / Arduino + DHT11
-        ->
+        ↓
 Serial Port (COMx)
-        ->
+        ↓
 Node.js backend
-        ->
+        ↓
 MongoDB Atlas
-        ->
+        ↓
 React dashboard + chatbot
 ```
 
