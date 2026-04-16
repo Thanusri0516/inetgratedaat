@@ -9,8 +9,8 @@ The project reads live sensor data from the serial port, stores it in MongoDB At
 - Live temperature and humidity from Arduino/ESP32
 - MongoDB Atlas storage for sensor readings
 - Trend chart for recent temperature history
-- Simple next-hour forecast
-- Chatbot for questions like `What is the temperature?`, `Is it hot?`, and `What is the forecast?`
+- Simple next-hour forecast using deep learning
+- Chatbot for questions like `What is the temperature?`, `Is it hot?` and so on
 - Frontend built with React + Vite
 - Backend built with Node.js and the MongoDB driver
 
